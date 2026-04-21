@@ -3,774 +3,651 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pizza This.. - Commande &amp; Réservation en ligne">
-    <title>Pizza This.. • Panel Admin + Client</title>
+    <title>Bella Pizza - Réservations & Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Inter:wght@400;500;600&amp;display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap');
         
         :root {
-            --primary: #e63939;
+            --tw-color-primary: #e6392b;
         }
         
         body {
-            font-family: 'Inter', system_ui, sans-serif;
+            font-family: 'Poppins', system-ui, sans-serif;
         }
         
-        .heading-font {
-            font-family: 'Playfair Display', sans-serif;
-        }
-
         .hero-bg {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
-                        url('https://picsum.photos/id/1015/2000/1200') center/cover no-repeat;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://picsum.photos/id/1015/2000/1200') center/cover no-repeat;
         }
-
-        .logo {
-            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.3));
+        
+        .pizza-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .admin-table tr:hover {
-            background-color: #fff1f2;
+        
+        .pizza-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 25px 25px 0 -10px #e6392b;
         }
-
-        .tab-active {
-            border-bottom: 3px solid #e63939;
-            color: #e63939;
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: -2px;
+            left: 0;
+            background-color: #e6392b;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+        
+        .modal {
+            animation: modalPop 0.3s ease;
+        }
+        
+        @keyframes modalPop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
-<body class="bg-stone-50">
+<body class="bg-slate-50 text-slate-800">
 
-    <!-- NAVBAR (inchangée) -->
-    <nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-x-3">
-                    <img src="Logo_Pizza_This.webp" alt="Pizza This.." class="logo h-12 w-auto">
-                    <div>
-                        <h1 class="heading-font text-3xl tracking-tighter font-bold text-stone-900">Pizza This..</h1>
-                        <p class="text-xs text-red-600 -mt-1 font-medium">ARTISANALE • LIVRAISON • À EMPORTER</p>
-                    </div>
+    <!-- NAVBAR -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-[#e6392b] text-white rounded-2xl flex items-center justify-center text-3xl shadow-inner">
+                    🍕
                 </div>
-
-                <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                    <a href="#" class="hover:text-red-600 transition-colors">Accueil</a>
-                    <a href="#" class="hover:text-red-600 transition-colors">Nos Pizzas</a>
-                    <a href="#commander" class="hover:text-red-600 transition-colors">Commander</a>
-                    <a href="#reservation" class="hover:text-red-600 transition-colors">Réserver</a>
-                    <a onclick="openAdminPanel()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-2xl font-semibold flex items-center gap-x-2">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        PANEL ADMIN
-                    </a>
-                </div>
-
-                <div class="flex items-center gap-x-4">
-                    <a href="tel:+33184801234" class="flex items-center gap-x-2 text-sm font-medium text-stone-700 hover:text-red-600">
-                        <i class="fa-solid fa-phone"></i>
-                        <span>01 84 80 12 34</span>
-                    </a>
-                    <button onclick="toggleMobileMenu()" class="md:hidden w-11 h-11 flex items-center justify-center text-2xl text-stone-700 hover:text-red-600">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
+                <div>
+                    <h1 class="text-3xl font-bold tracking-tighter text-[#e6392b]">Bella Pizza</h1>
+                    <p class="text-xs text-slate-500 -mt-1">Naples depuis 1998</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-t px-6 py-5">
-            <div class="flex flex-col gap-y-4 text-sm font-medium">
-                <a href="#" class="py-3">Accueil</a>
-                <a href="#" class="py-3">Nos Pizzas</a>
-                <a href="#commander" class="py-3">Commander</a>
-                <a href="#reservation" class="py-3">Réserver une table</a>
-                <button onclick="openAdminPanel();toggleMobileMenu()" class="mt-3 bg-red-600 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-x-3">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    PANEL ADMIN
+            <!-- Liens navigation -->
+            <div class="flex items-center gap-8 text-lg font-medium">
+                <a onclick="showSection('home')" class="nav-link cursor-pointer flex items-center gap-1">
+                    <i class="fas fa-home"></i> Accueil
+                </a>
+                <a onclick="showSection('menu')" class="nav-link cursor-pointer flex items-center gap-1">
+                    <i class="fas fa-pizza-slice"></i> Menu
+                </a>
+                <a onclick="showSection('reservation')" class="nav-link cursor-pointer flex items-center gap-1">
+                    <i class="fas fa-calendar-alt"></i> Réserver
+                </a>
+
+                <!-- Bouton Admin -->
+                <div id="admin-nav" onclick="handleAdminClick()" class="flex items-center gap-2 bg-[#e6392b] hover:bg-[#d12a1f] text-white px-6 py-2 rounded-2xl font-semibold cursor-pointer transition-all">
+                    <i class="fas fa-lock"></i>
+                    <span id="admin-text">Panel Admin</span>
+                </div>
+
+                <!-- Logout (caché par défaut) -->
+                <button onclick="logout()" id="logout-btn" class="hidden items-center gap-2 text-slate-700 hover:text-[#e6392b] font-medium">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- HERO (inchangé) -->
-    <header class="hero-bg h-screen flex items-center text-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="max-w-xl">
-                <div class="inline-flex items-center bg-white/20 backdrop-blur-md text-white text-sm font-medium px-6 py-2 rounded-3xl mb-6">
-                    <i class="fa-solid fa-fire-flame-curved mr-2"></i>
-                    PIZZAS AU FEU DE BOIS • OUVERT 7J/7
-                </div>
-                <h1 class="heading-font text-6xl md:text-7xl font-bold leading-none tracking-tighter mb-4">
-                    Pizza This..<br>La vraie pizza italienne !
-                </h1>
-                <p class="text-2xl text-orange-100 mb-8">Commande en ligne • Livraison rapide • Réservation table</p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="#commander" class="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-3xl font-semibold text-lg flex items-center gap-x-3 transition-all">
-                        <i class="fa-solid fa-pizza-slice"></i>
-                        Commander maintenant
-                    </a>
-                    <a href="#reservation" class="border-2 border-white hover:bg-white/10 px-8 py-4 rounded-3xl font-semibold text-lg flex items-center gap-x-3 transition-all">
-                        Réserver une table
-                    </a>
-                </div>
-                <div class="mt-12 flex items-center gap-x-8">
-                    <div class="flex items-center gap-x-1 text-amber-400">
-                        ★★★★☆ <span class="text-white ml-2 text-sm">4.9 (328 avis)</span>
-                    </div>
-                    <div class="h-4 w-px bg-white/40"></div>
-                    <p class="text-sm">128 commandes aujourd’hui • Chef moustachu approuvé ✅</p>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- RÉSERVATION & COMMANDER (inchangés sauf pizzas dynamiques) -->
-    <section id="reservation" class="max-w-7xl mx-auto px-6 py-20">
-        <div class="grid md:grid-cols-12 gap-12 items-center">
-            <div class="md:col-span-5">
-                <h2 class="heading-font text-5xl font-bold mb-6">Réservez votre table</h2>
-                <p class="text-xl text-stone-600 mb-8">Venez déguster nos pizzas au feu de bois dans une ambiance conviviale. Terrasse chauffée disponible !</p>
-            </div>
-            <div class="md:col-span-7 bg-white rounded-3xl shadow-xl p-8 md:p-10">
-                <form id="reservationForm" onsubmit="handleReservation(event)">
-                    <!-- même formulaire que avant -->
-                    <div class="grid grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Date</label>
-                            <input type="date" id="date" class="w-full border border-stone-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-red-600" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Heure</label>
-                            <select id="time" class="w-full border border-stone-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-red-600" required>
-                                <option value="">Choisir</option>
-                                <option value="18:30">18:30</option>
-                                <option value="19:00">19:00</option>
-                                <option value="19:30">19:30</option>
-                                <option value="20:00">20:00</option>
-                                <option value="20:30">20:30</option>
-                                <option value="21:00">21:00</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mt-6 grid grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Personnes</label>
-                            <select id="people" class="w-full border border-stone-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-red-600" required>
-                                <option value="2">2 personnes</option>
-                                <option value="3">3 personnes</option>
-                                <option value="4">4 personnes</option>
-                                <option value="5">5 personnes</option>
-                                <option value="6">6 personnes</option>
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium mb-2">Nom complet</label>
-                            <input type="text" id="name" placeholder="Jean Dupont" class="w-full border border-stone-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-red-600" required>
-                        </div>
-                    </div>
-                    <div class="mt-6">
-                        <label class="block text-sm font-medium mb-2">Téléphone</label>
-                        <input type="tel" id="phone" placeholder="06 12 34 56 78" class="w-full border border-stone-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-red-600" required>
-                    </div>
-                    <button type="submit" class="mt-8 w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-3xl font-semibold text-lg flex items-center justify-center gap-x-3">
-                        <i class="fa-solid fa-check"></i>
-                        CONFIRMER LA RÉSERVATION
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <section id="commander" class="bg-red-50 py-20">
-        <div class="max-w-7xl mx-auto px-6">
-            <h2 class="heading-font text-5xl font-bold text-center mb-4">Commandez vos pizzas</h2>
-            <p class="text-center text-stone-600 text-xl mb-12">Livraison en 25 min ou à emporter • Prix mis à jour en direct depuis le panel admin</p>
-            
-            <div id="pizzasGrid" class="grid md:grid-cols-3 gap-8">
-                <!-- Rempli dynamiquement par JS -->
-            </div>
-
-            <div class="mt-12 text-center">
-                <button onclick="simulateOrder()" class="bg-red-600 text-white px-12 py-5 rounded-3xl text-xl font-semibold flex items-center gap-x-4 mx-auto hover:scale-105 transition">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    VOIR MA COMMANDE &amp; PAYER
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================== PANEL ADMIN ÉTENDU ====================== -->
-    <div id="adminModal" onclick="if(event.target === this) closeAdminPanel()" class="hidden fixed inset-0 bg-black/70 z-[9999] flex items-center justify-center">
-        <div onclick="event.stopImmediatePropagation()" class="bg-white rounded-3xl w-full max-w-7xl mx-4 max-h-[95vh] overflow-hidden shadow-2xl flex flex-col">
-            
-            <!-- Header Admin -->
-            <div class="px-8 py-6 border-b flex items-center justify-between bg-stone-50">
-                <div class="flex items-center gap-x-4">
-                    <img src="Logo_Pizza_This.webp" alt="Logo" class="h-10">
-                    <h2 class="heading-font text-3xl font-bold">Panel Administrateur • Pizza This..</h2>
-                </div>
-                <div class="flex items-center gap-x-6">
-                    <div id="adminLiveBadge" class="flex items-center gap-x-2 bg-emerald-100 text-emerald-700 px-5 py-2 rounded-3xl text-sm font-medium">
-                        <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                        7 commandes en cours
-                    </div>
-                    <button onclick="closeAdminPanel()" class="text-3xl hover:text-red-600">✕</button>
-                </div>
-            </div>
-
-            <!-- TABS -->
-            <div class="px-8 pt-2 flex gap-x-8 border-b overflow-x-auto">
-                <button onclick="switchTab(0)" id="tab-0" class="tab-active pb-4 px-1 font-semibold flex items-center gap-x-2 text-red-600">
-                    <i class="fa-solid fa-chart-simple"></i> Tableau de bord
-                </button>
-                <button onclick="switchTab(1)" id="tab-1" class="pb-4 px-1 font-semibold flex items-center gap-x-2 hover:text-red-600">
-                    <i class="fa-solid fa-box"></i> Commandes
-                </button>
-                <button onclick="switchTab(2)" id="tab-2" class="pb-4 px-1 font-semibold flex items-center gap-x-2 hover:text-red-600">
-                    <i class="fa-solid fa-utensils"></i> Réservations
-                </button>
-                <button onclick="switchTab(3)" id="tab-3" class="pb-4 px-1 font-semibold flex items-center gap-x-2 hover:text-red-600">
-                    <i class="fa-solid fa-pizza-slice"></i> Menu
-                </button>
-                <button onclick="switchTab(4)" id="tab-4" class="pb-4 px-1 font-semibold flex items-center gap-x-2 hover:text-red-600">
-                    <i class="fa-solid fa-gear"></i> Paramètres
-                </button>
-            </div>
-
-            <!-- CONTENU DES TABS -->
-            <div class="flex-1 overflow-auto p-8" id="adminContent">
-
-                <!-- TAB 0 : TABLEAU DE BORD -->
-                <div id="content-0">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-                        <div class="bg-white border border-red-200 rounded-3xl p-6">
-                            <p class="text-sm text-stone-500">Commandes aujourd’hui</p>
-                            <p id="dash-orders" class="text-5xl font-bold text-red-600 mt-2">14</p>
-                            <p class="text-emerald-600 text-sm mt-1">+3 depuis 1h</p>
-                        </div>
-                        <div class="bg-white border border-red-200 rounded-3xl p-6">
-                            <p class="text-sm text-stone-500">CA aujourd’hui</p>
-                            <p id="dash-revenue" class="text-5xl font-bold text-red-600 mt-2">287€</p>
-                            <p class="text-emerald-600 text-sm mt-1">Moyenne : 20,50€ / commande</p>
-                        </div>
-                        <div class="bg-white border border-red-200 rounded-3xl p-6">
-                            <p class="text-sm text-stone-500">Réservations en cours</p>
-                            <p id="dash-reservations" class="text-5xl font-bold text-red-600 mt-2">6</p>
-                            <p class="text-amber-600 text-sm mt-1">2 tables encore libres ce soir</p>
-                        </div>
-                        <div class="bg-white border border-red-200 rounded-3xl p-6">
-                            <p class="text-sm text-stone-500">Pizzas vendues</p>
-                            <p id="dash-pizzas" class="text-5xl font-bold text-red-600 mt-2">37</p>
-                            <p class="text-stone-500 text-sm mt-1">Margherita en tête</p>
-                        </div>
-                    </div>
-
-                    <!-- Graphique -->
-                    <div class="bg-white rounded-3xl p-6 shadow">
-                        <h3 class="font-semibold mb-4 flex items-center gap-x-2"><i class="fa-solid fa-chart-line"></i> Commandes par heure (aujourd’hui)</h3>
-                        <canvas id="ordersChart" class="w-full h-80"></canvas>
-                    </div>
-                </div>
-
-                <!-- TAB 1 : COMMANDES -->
-                <div id="content-1" class="hidden">
-                    <div class="flex justify-between mb-6">
-                        <input id="searchOrder" type="text" placeholder="Rechercher une commande..." 
-                               class="border border-stone-300 rounded-3xl px-5 py-3 w-96 focus:outline-none focus:border-red-600"
-                               onkeyup="filterOrders()">
-                        <button onclick="refreshAllData()" class="flex items-center gap-x-2 text-red-600 font-medium">
-                            <i class="fa-solid fa-rotate"></i> Actualiser tout
+    <!-- SECTION ACCUEIL -->
+    <section id="home" class="section active">
+        <div class="hero-bg h-screen flex items-center">
+            <div class="max-w-7xl mx-auto px-6 text-white">
+                <div class="max-w-2xl">
+                    <h2 class="text-6xl font-bold leading-none mb-6">La meilleure pizza<br>de la ville 🍕</h2>
+                    <p class="text-2xl mb-8 text-orange-200">Réservez votre table en 30 secondes ou découvrez notre carte fraîchement préparée.</p>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="showSection('reservation')" 
+                                class="bg-[#e6392b] hover:bg-[#d12a1f] text-white text-xl font-semibold px-10 py-4 rounded-3xl flex items-center gap-3 shadow-xl transition">
+                            <i class="fas fa-calendar"></i> Réserver maintenant
                         </button>
-                    </div>
-                    <table class="w-full admin-table">
-                        <thead>
-                            <tr class="border-b text-left text-sm font-medium text-stone-500">
-                                <th class="pb-4">ID</th>
-                                <th class="pb-4">Client</th>
-                                <th class="pb-4">Téléphone</th>
-                                <th class="pb-4">Commande</th>
-                                <th class="pb-4">Heure</th>
-                                <th class="pb-4">Statut</th>
-                                <th class="pb-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ordersTable" class="text-sm divide-y"></tbody>
-                    </table>
-                </div>
-
-                <!-- TAB 2 : RÉSERVATIONS -->
-                <div id="content-2" class="hidden">
-                    <div class="flex justify-between mb-6">
-                        <h3 class="text-2xl font-semibold">Réservations du jour</h3>
-                        <button onclick="addDemoReservation()" class="text-red-600 flex items-center gap-x-2">
-                            <i class="fa-solid fa-plus"></i> Nouvelle réservation
-                        </button>
-                    </div>
-                    <table class="w-full admin-table">
-                        <thead>
-                            <tr class="border-b text-left text-sm font-medium text-stone-500">
-                                <th class="pb-4">ID</th>
-                                <th class="pb-4">Client</th>
-                                <th class="pb-4">Date / Heure</th>
-                                <th class="pb-4">Personnes</th>
-                                <th class="pb-4">Statut</th>
-                                <th class="pb-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reservationsTable" class="text-sm divide-y"></tbody>
-                    </table>
-                </div>
-
-                <!-- TAB 3 : MENU -->
-                <div id="content-3" class="hidden">
-                    <div class="flex justify-between mb-6">
-                        <h3 class="text-2xl font-semibold">Gestion du menu</h3>
-                        <button onclick="showAddPizzaForm()" class="bg-red-600 text-white px-6 py-3 rounded-3xl font-medium flex items-center gap-x-2">
-                            <i class="fa-solid fa-plus"></i> Ajouter une pizza
+                        <button onclick="showSection('menu')" 
+                                class="border-2 border-white hover:bg-white hover:text-slate-900 text-xl font-semibold px-10 py-4 rounded-3xl flex items-center gap-3 transition">
+                            Voir la carte
                         </button>
                     </div>
                     
-                    <!-- Formulaire ajout pizza -->
-                    <div id="addPizzaForm" class="hidden bg-red-50 p-6 rounded-3xl mb-8">
-                        <div class="grid grid-cols-12 gap-4">
-                            <div class="col-span-5">
-                                <label class="text-xs">Nom de la pizza</label>
-                                <input id="newPizzaName" type="text" class="w-full border border-stone-300 rounded-2xl px-4 py-3" placeholder="Ex: Calzone">
+                    <div class="mt-12 flex items-center gap-8 text-sm">
+                        <div class="flex items-center gap-2">
+                            <div class="flex -space-x-4">
+                                <div class="w-8 h-8 bg-orange-400 rounded-2xl flex items-center justify-center text-lg">🍕</div>
+                                <div class="w-8 h-8 bg-yellow-400 rounded-2xl flex items-center justify-center text-lg">🌿</div>
                             </div>
-                            <div class="col-span-3">
-                                <label class="text-xs">Prix (€)</label>
-                                <input id="newPizzaPrice" type="number" step="0.5" class="w-full border border-stone-300 rounded-2xl px-4 py-3" value="14">
-                            </div>
-                            <div class="col-span-4">
-                                <label class="text-xs">Description courte</label>
-                                <input id="newPizzaDesc" type="text" class="w-full border border-stone-300 rounded-2xl px-4 py-3" placeholder="Mozzarella, jambon, champignons">
-                            </div>
-                        </div>
-                        <div class="flex justify-end gap-4 mt-4">
-                            <button onclick="hideAddPizzaForm()" class="px-6 py-3 text-stone-500">Annuler</button>
-                            <button onclick="addNewPizza()" class="bg-red-600 text-white px-8 py-3 rounded-3xl">Ajouter au menu</button>
-                        </div>
-                    </div>
-
-                    <table class="w-full admin-table">
-                        <thead>
-                            <tr class="border-b text-left text-sm font-medium text-stone-500">
-                                <th class="pb-4">Pizza</th>
-                                <th class="pb-4">Prix</th>
-                                <th class="pb-4">Description</th>
-                                <th class="pb-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="menuTable" class="text-sm divide-y"></tbody>
-                    </table>
-                </div>
-
-                <!-- TAB 4 : PARAMÈTRES -->
-                <div id="content-4" class="hidden">
-                    <div class="max-w-lg mx-auto bg-white rounded-3xl p-8">
-                        <h3 class="text-2xl font-semibold mb-8">Paramètres du restaurant</h3>
-                        
-                        <div class="space-y-8">
                             <div>
-                                <label class="block text-sm mb-2 font-medium">Heures d’ouverture</label>
-                                <div class="flex gap-4">
-                                    <input type="text" value="11h00 - 15h00" class="flex-1 border border-stone-300 rounded-2xl px-4 py-3">
-                                    <input type="text" value="18h30 - 23h00" class="flex-1 border border-stone-300 rounded-2xl px-4 py-3">
-                                </div>
+                                <p class="font-semibold">Ingrédients frais</p>
+                                <p class="text-orange-200 text-xs">Chaque jour</p>
                             </div>
-                            
-                            <div>
-                                <label class="block text-sm mb-2 font-medium">Adresse</label>
-                                <input type="text" value="12 Rue des Pizzerias, 75011 Paris" class="w-full border border-stone-300 rounded-2xl px-4 py-3">
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm mb-2 font-medium">Téléphone</label>
-                                    <input type="tel" value="01 84 80 12 34" class="w-full border border-stone-300 rounded-2xl px-4 py-3">
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-2 font-medium">Délai livraison</label>
-                                    <input type="text" value="25 minutes" class="w-full border border-stone-300 rounded-2xl px-4 py-3">
-                                </div>
-                            </div>
-                            
-                            <button onclick="saveSettings()" class="w-full bg-red-600 text-white py-4 rounded-3xl font-semibold">Enregistrer les modifications</button>
-                            
-                            <p class="text-xs text-center text-stone-500 mt-8">Toutes les données sont sauvegardées dans le navigateur (localStorage). Idéal pour une démo GitHub Pages.</p>
                         </div>
+                        <div>⭐⭐⭐⭐⭐ <span class="text-orange-200">4.98/5</span> (248 avis)</div>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div class="px-8 py-4 bg-stone-50 text-xs text-stone-400 flex justify-between items-center border-t">
-                <p>🔒 Démo complète • Tout est interactif et persistant pendant la session</p>
-                <p onclick="resetAllData()" class="cursor-pointer hover:text-red-600">Réinitialiser toutes les données</p>
+    <!-- SECTION MENU -->
+    <section id="menu" class="section max-w-7xl mx-auto px-6 py-16">
+        <h2 class="text-5xl font-bold text-center mb-4">Notre Carte 🍕</h2>
+        <p class="text-center text-slate-600 mb-12">Toutes nos pizzas sont faites à la main avec des ingrédients italiens authentiques</p>
+        
+        <div id="menu-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Rempli par JavaScript -->
+        </div>
+    </section>
+
+    <!-- SECTION RÉSERVATION -->
+    <section id="reservation" class="section max-w-2xl mx-auto px-6 py-16">
+        <div class="bg-white rounded-3xl shadow-2xl p-10">
+            <h2 class="text-5xl font-bold text-center mb-2">Réservez votre table</h2>
+            <p class="text-center text-slate-500 mb-10">Nous vous attendons avec une pizza chaude !</p>
+            
+            <form id="reservation-form" class="space-y-8">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Nom complet</label>
+                        <input type="text" id="nom" required
+                               class="w-full px-5 py-4 border border-slate-300 rounded-2xl focus:outline-none focus:border-[#e6392b] text-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Téléphone</label>
+                        <input type="tel" id="tel" required
+                               class="w-full px-5 py-4 border border-slate-300 rounded-2xl focus:outline-none focus:border-[#e6392b] text-lg">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Date</label>
+                        <input type="date" id="date" required
+                               class="w-full px-5 py-4 border border-slate-300 rounded-2xl focus:outline-none focus:border-[#e6392b] text-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Heure</label>
+                        <select id="heure" required
+                                class="w-full px-5 py-4 border border-slate-300 rounded-2xl focus:outline-none focus:border-[#e6392b] text-lg">
+                            <option value="">Choisir</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="19:00">19:00</option>
+                            <option value="19:30">19:30</option>
+                            <option value="20:00">20:00</option>
+                            <option value="20:30">20:30</option>
+                            <option value="21:00">21:00</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2">Nombre de personnes</label>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="setPersons(2)" class="persons-btn flex-1 py-4 text-xl font-semibold border-2 rounded-2xl">2</button>
+                        <button type="button" onclick="setPersons(4)" class="persons-btn flex-1 py-4 text-xl font-semibold border-2 rounded-2xl">4</button>
+                        <button type="button" onclick="setPersons(6)" class="persons-btn flex-1 py-4 text-xl font-semibold border-2 rounded-2xl">6</button>
+                        <button type="button" onclick="setPersons(8)" class="persons-btn flex-1 py-4 text-xl font-semibold border-2 rounded-2xl">8+</button>
+                    </div>
+                    <input type="hidden" id="nbPersonnes" value="4">
+                </div>
+                
+                <button type="submit"
+                        class="w-full bg-[#e6392b] hover:bg-[#d12a1f] text-white text-2xl font-bold py-6 rounded-3xl flex items-center justify-center gap-3 transition">
+                    <i class="fas fa-check-circle"></i>
+                    CONFIRMER MA RÉSERVATION
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SECTION PANEL ADMIN -->
+    <section id="admin" class="section max-w-7xl mx-auto px-6 py-16 bg-slate-100">
+        <div class="flex justify-between items-baseline mb-12">
+            <h2 class="text-5xl font-bold">Panel Administrateur</h2>
+            <div class="text-sm bg-white px-4 py-2 rounded-2xl shadow flex items-center gap-2">
+                <i class="fas fa-shield-alt text-green-500"></i>
+                Connecté en tant qu'administrateur
             </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Gestion des pizzas -->
+            <div class="lg:col-span-7 bg-white rounded-3xl shadow-xl p-8">
+                <h3 class="text-3xl font-semibold mb-6 flex items-center gap-3">
+                    <i class="fas fa-pizza-slice text-[#e6392b]"></i> Gérer les pizzas
+                </h3>
+                
+                <!-- Formulaire ajout pizza -->
+                <div class="bg-slate-50 rounded-2xl p-6 mb-10">
+                    <h4 class="font-semibold mb-4">Ajouter une nouvelle pizza</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input id="new-nom" type="text" placeholder="Nom de la pizza" 
+                               class="px-5 py-4 rounded-2xl border border-slate-300">
+                        <input id="new-prix" type="number" step="0.5" placeholder="Prix (€)" 
+                               class="px-5 py-4 rounded-2xl border border-slate-300">
+                    </div>
+                    <input id="new-desc" type="text" placeholder="Description / ingrédients" 
+                           class="mt-4 w-full px-5 py-4 rounded-2xl border border-slate-300">
+                    <button onclick="addPizza()" 
+                            class="mt-6 w-full bg-[#e6392b] text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 hover:bg-[#d12a1f]">
+                        <i class="fas fa-plus"></i> AJOUTER AU MENU
+                    </button>
+                </div>
+                
+                <!-- Liste des pizzas -->
+                <div id="admin-pizzas-list" class="space-y-4">
+                    <!-- Rempli par JS -->
+                </div>
+            </div>
+
+            <!-- Réservations reçues -->
+            <div class="lg:col-span-5 bg-white rounded-3xl shadow-xl p-8 flex flex-col">
+                <h3 class="text-3xl font-semibold mb-6 flex items-center gap-3">
+                    <i class="fas fa-calendar-check text-[#e6392b]"></i> Réservations
+                </h3>
+                <div id="admin-reservations-list" class="flex-1 overflow-auto space-y-4 pr-2">
+                    <!-- Rempli par JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL MOT DE PASSE ADMIN -->
+    <div onclick="if(event.target.id === 'password-modal') hidePasswordModal()" 
+         id="password-modal"
+         class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="modal bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="mx-auto w-16 h-16 bg-[#e6392b] text-white rounded-2xl flex items-center justify-center text-4xl mb-4">🔐</div>
+                <h3 class="text-3xl font-bold">Accès administrateur</h3>
+                <p class="text-slate-500 mt-2">Entrez le mot de passe</p>
+            </div>
+            
+            <input id="admin-password" type="password" placeholder="Mot de passe" 
+                   class="w-full px-6 py-5 text-2xl border border-slate-300 rounded-2xl focus:outline-none focus:border-[#e6392b] text-center tracking-[4px]">
+            
+            <div class="flex gap-4 mt-8">
+                <button onclick="hidePasswordModal()" 
+                        class="flex-1 py-5 text-slate-700 font-semibold border border-slate-300 rounded-2xl">Annuler</button>
+                <button onclick="checkPassword()" 
+                        class="flex-1 py-5 bg-[#e6392b] text-white font-semibold rounded-2xl">Valider</button>
+            </div>
+            
+            <p class="text-xs text-center text-slate-400 mt-6">Mot de passe par défaut : <span class="font-mono bg-slate-100 px-2 py-1 rounded">pizza123</span></p>
         </div>
     </div>
 
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex justify-center gap-8 text-4xl mb-8">
+                🍕 🌿 🧀
+            </div>
+            <p class="text-slate-400">© 2026 Bella Pizza - Démo GitHub Pages</p>
+            <p class="text-xs text-slate-500 mt-2">Toutes les données sont sauvegardées localement dans votre navigateur (localStorage)</p>
+            <p class="text-xs text-slate-500 mt-6">Prêt à déployer ? Crée un repo GitHub → ajoute ce fichier en <strong>index.html</strong> → active GitHub Pages !</p>
+        </div>
+    </footer>
+
     <script>
-        // ====================== DONNÉES GLOBALES ======================
+        // ==================== CONFIGURATION ====================
+        const ADMIN_PASSWORD = "pizza123"  // ← Change ce mot de passe comme tu veux !
+        
         let pizzas = [
-            { id: 1, name: "Margherita", price: 12, desc: "Sauce tomate, mozzarella, basilic frais" },
-            { id: 2, name: "Pepperoni", price: 15, desc: "Mozzarella, pepperoni, sauce piquante" },
-            { id: 3, name: "Quatre Fromages", price: 16, desc: "Gorgonzola, parmesan, chèvre, mozzarella" },
-            { id: 4, name: "Calzone", price: 14, desc: "Jambon, champignons, mozzarella, œuf" }
+            {
+                id: 1,
+                nom: "Margherita Classica",
+                description: "Sauce tomate San Marzano, mozzarella di Bufala, basilic frais",
+                prix: 13.90
+            },
+            {
+                id: 2,
+                nom: "Pepperoni Diavola",
+                description: "Sauce tomate, mozzarella, pepperoni piquant, piment",
+                prix: 15.50
+            },
+            {
+                id: 3,
+                nom: "Quattro Formaggi",
+                description: "Mozzarella, gorgonzola, parmesan, chèvre, miel",
+                prix: 16.90
+            },
+            {
+                id: 4,
+                nom: "Prosciutto e Funghi",
+                description: "Jambon cru, champignons, mozzarella, roquette",
+                prix: 17.50
+            }
         ]
-
-        let orders = [
-            { id: 4872, client: "Sophie Martin", phone: "06 45 78 12 34", items: "Margherita ×2 + Pepperoni ×1", time: "19:15", status: "En préparation", total: 39 },
-            { id: 4871, client: "Lucas Bernard", phone: "06 12 34 56 78", items: "Quatre Fromages", time: "18:50", status: "Prête à emporter", total: 16 },
-            { id: 4870, client: "Emma Dubois", phone: "07 89 01 23 45", items: "Pepperoni ×3", time: "18:40", status: "Livraison", total: 45 }
-        ]
-
-        let reservations = [
-            { id: 912, client: "Jean Dupont", date: "2026-04-22", time: "19:30", people: 4, status: "Confirmée" },
-            { id: 913, client: "Marie Leclerc", date: "2026-04-22", time: "20:00", people: 2, status: "Confirmée" },
-            { id: 914, client: "Paul Moreau", date: "2026-04-22", time: "21:00", people: 6, status: "En attente" }
-        ]
-
-        let chartInstance = null
-
-        // ====================== FONCTIONS ADMIN ======================
-        function openAdminPanel() {
-            document.getElementById('adminModal').classList.remove('hidden')
-            document.getElementById('adminModal').classList.add('flex')
-            switchTab(0) // Ouvre sur le tableau de bord
-        }
-
-        function closeAdminPanel() {
-            const modal = document.getElementById('adminModal')
-            modal.classList.remove('flex')
-            modal.classList.add('hidden')
-        }
-
-        function switchTab(tabIndex) {
-            // Désactive tous les tabs
-            document.querySelectorAll('#adminModal button[id^="tab-"]').forEach(btn => btn.classList.remove('tab-active'))
-            // Active le bon
-            document.getElementById(`tab-${tabIndex}`).classList.add('tab-active')
+        
+        let reservations = []
+        let isAdminLoggedIn = false
+        
+        // ==================== FONCTIONS LOCALSTORAGE ====================
+        function loadData() {
+            const savedPizzas = localStorage.getItem('bella_pizzas')
+            if (savedPizzas) pizzas = JSON.parse(savedPizzas)
+            else localStorage.setItem('bella_pizzas', JSON.stringify(pizzas))
             
-            // Cache tous les contenus
-            document.querySelectorAll('#adminContent > div').forEach(div => div.classList.add('hidden'))
-            // Affiche le bon
-            document.getElementById(`content-${tabIndex}`).classList.remove('hidden')
-
-            if (tabIndex === 0) renderDashboard()
-            if (tabIndex === 1) renderOrders()
-            if (tabIndex === 2) renderReservations()
-            if (tabIndex === 3) renderMenu()
+            const savedReservations = localStorage.getItem('bella_reservations')
+            if (savedReservations) reservations = JSON.parse(savedReservations)
         }
-
-        // ---------------------- DASHBOARD ----------------------
-        function renderDashboard() {
-            // Stats
-            document.getElementById('dash-orders').textContent = orders.length + 3
-            document.getElementById('dash-revenue').textContent = orders.reduce((sum, o) => sum + (o.total || 20), 0) + "€"
-            document.getElementById('dash-reservations').textContent = reservations.length
-            document.getElementById('dash-pizzas').textContent = Math.floor(Math.random() * 15) + 25
-
-            // Graphique
-            const ctx = document.getElementById('ordersChart')
-            if (chartInstance) chartInstance.destroy()
-
-            const hours = Array.from({length: 8}, (_, i) => `${18 + i}h`)
-            const data = [3, 5, 8, 12, 18, 11, 7, 4]
-
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: hours,
-                    datasets: [{
-                        label: 'Commandes',
-                        data: data,
-                        backgroundColor: '#e63939',
-                        borderColor: '#e63939',
-                        borderWidth: 2,
-                        borderRadius: 8,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, grid: { color: '#f1f1f1' } } }
-                }
-            })
+        
+        function savePizzas() {
+            localStorage.setItem('bella_pizzas', JSON.stringify(pizzas))
         }
-
-        // ---------------------- COMMANDES ----------------------
-        function renderOrders(filteredOrders = orders) {
-            const tbody = document.getElementById('ordersTable')
-            tbody.innerHTML = filteredOrders.map(order => `
-                <tr class="hover:bg-red-50 transition-colors">
-                    <td class="py-5 font-mono text-red-600">#${order.id}</td>
-                    <td class="py-5">${order.client}</td>
-                    <td class="py-5">${order.phone}</td>
-                    <td class="py-5">${order.items}</td>
-                    <td class="py-5">${order.time}</td>
-                    <td class="py-5">
-                        <span onclick="changeOrderStatus(${order.id})" class="cursor-pointer inline-flex items-center px-4 py-1 rounded-3xl text-xs font-medium
-                            ${order.status === 'En préparation' ? 'bg-amber-100 text-amber-700' : ''}
-                            ${order.status === 'Prête à emporter' ? 'bg-emerald-100 text-emerald-700' : ''}
-                            ${order.status === 'Livraison' ? 'bg-blue-100 text-blue-700' : ''}
-                            ${order.status === 'Terminée' ? 'bg-gray-100 text-gray-700' : ''}">
-                            ${order.status}
-                        </span>
-                    </td>
-                    <td class="py-5 text-center">
-                        <button onclick="deleteOrder(${order.id}); event.stopImmediatePropagation()" class="text-red-600 hover:text-red-800 px-4 py-2 rounded-2xl hover:bg-red-100">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('')
+        
+        function saveReservations() {
+            localStorage.setItem('bella_reservations', JSON.stringify(reservations))
         }
-
-        function filterOrders() {
-            const term = document.getElementById('searchOrder').value.toLowerCase().trim()
-            if (!term) return renderOrders()
-            const filtered = orders.filter(o => 
-                o.client.toLowerCase().includes(term) ||
-                o.items.toLowerCase().includes(term)
-            )
-            renderOrders(filtered)
-        }
-
-        function changeOrderStatus(id) {
-            const order = orders.find(o => o.id === id)
-            if (!order) return
-            const statuses = ["En préparation", "Prête à emporter", "Livraison", "Terminée"]
-            const idx = statuses.indexOf(order.status)
-            order.status = statuses[(idx + 1) % statuses.length]
-            
-            if (order.status === "Terminée") {
-                if (confirm(`Commande #${id} terminée. La supprimer du suivi ?`)) {
-                    deleteOrder(id)
-                    return
-                }
-            }
-            renderOrders()
-            renderDashboard() // Met à jour le dashboard
-        }
-
-        function deleteOrder(id) {
-            if (confirm(`Supprimer définitivement la commande #${id} ?`)) {
-                orders = orders.filter(o => o.id !== id)
-                renderOrders()
-                renderDashboard()
-            }
-        }
-
-        // ---------------------- RÉSERVATIONS ----------------------
-        function renderReservations() {
-            const tbody = document.getElementById('reservationsTable')
-            tbody.innerHTML = reservations.map(r => `
-                <tr>
-                    <td class="py-5 font-mono">#${r.id}</td>
-                    <td class="py-5">${r.client}</td>
-                    <td class="py-5">${r.date} • ${r.time}</td>
-                    <td class="py-5">${r.people} pers.</td>
-                    <td class="py-5">
-                        <span onclick="changeReservationStatus(${r.id})" class="cursor-pointer px-4 py-1 rounded-3xl text-xs font-medium inline-flex
-                            ${r.status === 'Confirmée' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${r.status}
-                        </span>
-                    </td>
-                    <td class="py-5 text-center">
-                        <button onclick="deleteReservation(${r.id}); event.stopImmediatePropagation()" class="text-red-600 hover:text-red-800 px-4 py-2 rounded-2xl hover:bg-red-100">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('')
-        }
-
-        function changeReservationStatus(id) {
-            const res = reservations.find(r => r.id === id)
-            if (!res) return
-            res.status = res.status === "Confirmée" ? "Annulée" : "Confirmée"
-            renderReservations()
-        }
-
-        function deleteReservation(id) {
-            if (confirm(`Supprimer la réservation #${id} ?`)) {
-                reservations = reservations.filter(r => r.id !== id)
-                renderReservations()
-            }
-        }
-
-        function addDemoReservation() {
-            const newRes = {
-                id: Math.floor(900 + Math.random() * 100),
-                client: "Nouveau client",
-                date: "2026-04-22",
-                time: "20:30",
-                people: 2,
-                status: "En attente"
-            }
-            reservations.unshift(newRes)
-            renderReservations()
-            alert("✅ Nouvelle réservation ajoutée dans le panel !")
-        }
-
-        // ---------------------- MENU ----------------------
+        
+        // ==================== RENDER MENU PUBLIC ====================
         function renderMenu() {
-            const tbody = document.getElementById('menuTable')
-            tbody.innerHTML = pizzas.map(p => `
-                <tr>
-                    <td class="py-5 font-medium">${p.name}</td>
-                    <td class="py-5 text-red-600 font-bold">${p.price} €</td>
-                    <td class="py-5 text-stone-500">${p.desc}</td>
-                    <td class="py-5 text-center">
-                        <button onclick="deletePizza(${p.id})" class="text-red-600 hover:text-red-800 px-4 py-2 rounded-2xl hover:bg-red-100">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('')
-        }
-
-        function showAddPizzaForm() {
-            document.getElementById('addPizzaForm').classList.remove('hidden')
-        }
-
-        function hideAddPizzaForm() {
-            document.getElementById('addPizzaForm').classList.add('hidden')
-            document.getElementById('newPizzaName').value = ''
-            document.getElementById('newPizzaPrice').value = '14'
-            document.getElementById('newPizzaDesc').value = ''
-        }
-
-        function addNewPizza() {
-            const name = document.getElementById('newPizzaName').value.trim()
-            const price = parseFloat(document.getElementById('newPizzaPrice').value)
-            const desc = document.getElementById('newPizzaDesc').value.trim() || "Pizza artisanale"
-
-            if (!name) return alert("Le nom est obligatoire !")
-
-            const newPizza = {
-                id: Math.max(...pizzas.map(p => p.id)) + 1,
-                name,
-                price,
-                desc
-            }
-            pizzas.push(newPizza)
-            hideAddPizzaForm()
-            renderMenu()
-            renderPizzasClient() // Met à jour la page client aussi !
-            alert(`🍕 ${name} ajoutée au menu avec succès !`)
-        }
-
-        function deletePizza(id) {
-            if (confirm("Supprimer cette pizza du menu ?")) {
-                pizzas = pizzas.filter(p => p.id !== id)
-                renderMenu()
-                renderPizzasClient()
-            }
-        }
-
-        // ---------------------- PARAMÈTRES ----------------------
-        function saveSettings() {
-            alert("✅ Paramètres enregistrés avec succès ! (démo)")
-            // On pourrait sauvegarder dans localStorage si on voulait
-        }
-
-        // ---------------------- CLIENT SIDE PIZZAS (dynamique) ----------------------
-        function renderPizzasClient() {
-            const container = document.getElementById('pizzasGrid')
-            container.innerHTML = pizzas.map(p => `
-                <div onclick="addToDemoOrder('${p.name}', ${p.price})" 
-                     class="bg-white rounded-3xl overflow-hidden shadow hover:shadow-xl cursor-pointer transition-all">
-                    <div class="h-48 bg-[url('https://picsum.photos/id/201/600/400')] bg-cover flex items-end">
-                        <div class="bg-red-600 text-white text-xs font-bold px-3 py-1 ml-4 mb-4 rounded-3xl">${p.price}€</div>
+            const container = document.getElementById('menu-list')
+            container.innerHTML = ''
+            
+            pizzas.forEach(pizza => {
+                const cardHTML = `
+                <div class="pizza-card bg-white rounded-3xl overflow-hidden shadow-lg">
+                    <div class="h-40 bg-gradient-to-br from-orange-100 to-yellow-100 flex items-center justify-center text-8xl">
+                        🍕
                     </div>
                     <div class="p-6">
-                        <div class="flex justify-between items-baseline">
-                            <h3 class="font-semibold text-xl">${p.name}</h3>
+                        <div class="flex justify-between items-start">
+                            <h4 class="text-2xl font-semibold">${pizza.nom}</h4>
+                            <span class="text-2xl font-bold text-[#e6392b]">${pizza.prix}€</span>
                         </div>
-                        <p class="text-stone-500 text-sm mt-1">${p.desc}</p>
+                        <p class="text-slate-600 mt-3 leading-tight">${pizza.description}</p>
                     </div>
-                </div>
-            `).join('')
+                </div>`
+                container.innerHTML += cardHTML
+            })
+            
+            // Si aucune pizza
+            if (pizzas.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center py-12 text-slate-400 text-xl">Aucune pizza pour le moment... Ajoutez-en dans le panel admin !</p>`
+            }
         }
-
-        // ====================== FONCTIONS CLIENT ======================
-        let demoCart = []
-
-        function addToDemoOrder(name, price) {
-            demoCart.push({name, price})
-            alert(`✅ ${name} ajoutée à votre panier ! (${demoCart.length} articles)`)
+        
+        // ==================== RENDER ADMIN PIZZAS ====================
+        function renderAdminPizzas() {
+            const container = document.getElementById('admin-pizzas-list')
+            container.innerHTML = ''
+            
+            pizzas.forEach((pizza, index) => {
+                const item = document.createElement('div')
+                item.className = "flex items-center justify-between bg-slate-50 rounded-2xl px-6 py-5 hover:bg-white border border-transparent hover:border-[#e6392b]/20"
+                item.innerHTML = `
+                    <div>
+                        <div class="font-semibold text-xl">${pizza.nom}</div>
+                        <div class="text-slate-500 text-sm">${pizza.description}</div>
+                    </div>
+                    <div class="flex items-center gap-8">
+                        <div class="text-right">
+                            <span class="text-3xl font-bold text-[#e6392b]">${pizza.prix}€</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editPizza(${pizza.id})" 
+                                    class="w-10 h-10 flex items-center justify-center bg-white hover:bg-amber-100 rounded-2xl text-amber-600">
+                                ✏️
+                            </button>
+                            <button onclick="deletePizza(${pizza.id})" 
+                                    class="w-10 h-10 flex items-center justify-center bg-white hover:bg-red-100 rounded-2xl text-red-600">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>`
+                container.appendChild(item)
+            })
+            
+            if (pizzas.length === 0) {
+                container.innerHTML = `<p class="text-center py-12 text-slate-400">Aucune pizza. Ajoutez la première !</p>`
+            }
         }
-
-        function simulateOrder() {
-            if (demoCart.length === 0) {
-                alert("Ajoutez d’abord des pizzas en cliquant dessus ! 🍕")
+        
+        // ==================== RENDER ADMIN RÉSERVATIONS ====================
+        function renderAdminReservations() {
+            const container = document.getElementById('admin-reservations-list')
+            container.innerHTML = ''
+            
+            if (reservations.length === 0) {
+                container.innerHTML = `<div class="text-center py-20 text-slate-400 text-lg">Aucune réservation pour le moment</div>`
                 return
             }
             
-            const total = demoCart.reduce((sum, item) => sum + item.price, 0)
-            const newOrder = {
-                id: Math.floor(4800 + Math.random() * 100),
-                client: "Client démo",
-                phone: "06 XX XX XX XX",
-                items: demoCart.map(i => i.name).join(" + "),
-                time: `${new Date().getHours()}:${new Date().getMinutes() < 10 ? '0' : ''}${new Date().getMinutes()}`,
-                status: "En préparation",
-                total: total
-            }
-            
-            orders.unshift(newOrder)
-            demoCart = []
-            
-            alert(`🎉 Commande #${newOrder.id} de ${total}€ envoyée ! Elle apparaît immédiatement dans le Panel Admin.`)
-            setTimeout(() => openAdminPanel(), 600)
-        }
-
-        function handleReservation(e) {
-            e.preventDefault()
-            const name = document.getElementById('name').value
-            alert(`✅ Réservation confirmée pour ${name} !\nVous recevrez un SMS de confirmation. 🍕`)
-            e.target.reset()
-        }
-
-        function toggleMobileMenu() {
-            document.getElementById('mobileMenu').classList.toggle('hidden')
-        }
-
-        // ====================== RAFRAÎCHIR & RÉINITIALISER ======================
-        function refreshAllData() {
-            renderOrders()
-            renderReservations()
-            renderDashboard()
-            alert("✅ Tout a été rafraîchi !")
-        }
-
-        function resetAllData() {
-            if (confirm("Réinitialiser TOUTES les données (commandes, menu, réservations) ?")) {
-                location.reload()
-            }
-        }
-
-        // ====================== INITIALISATION ======================
-        window.onload = function() {
-            console.log('%c✅ Pizza This.. Panel Admin ÉTENDU prêt !', 'color:#e63939; font-size:14px; font-weight:bold')
-            
-            // Rendre les pizzas dynamiques côté client
-            renderPizzasClient()
-            
-            // Persistance simple avec localStorage (optionnel)
-            if (localStorage.getItem('pizzaThisPizzas')) {
-                pizzas = JSON.parse(localStorage.getItem('pizzaThisPizzas'))
-            }
-            // Sauvegarde automatique du menu
-            window.addEventListener('beforeunload', () => {
-                localStorage.setItem('pizzaThisPizzas', JSON.stringify(pizzas))
+            reservations.forEach((res, index) => {
+                const date = new Date(res.date)
+                const itemHTML = `
+                <div class="bg-slate-50 rounded-2xl p-5 flex justify-between items-center">
+                    <div>
+                        <div class="font-semibold">${res.nom}</div>
+                        <div class="text-sm text-slate-500">${res.tel} • ${res.nbPersonnes} personnes</div>
+                        <div class="text-xs text-slate-400 mt-1">${date.toLocaleDateString('fr-FR')} à ${res.heure}</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-block px-4 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-2xl">En attente</span>
+                        <button onclick="deleteReservation(${index})" 
+                                class="mt-3 block text-red-500 hover:text-red-700 text-xs flex items-center gap-1 mx-auto">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>`
+                container.innerHTML += itemHTML
             })
         }
+        
+        // ==================== AJOUTER PIZZA ====================
+        function addPizza() {
+            const nom = document.getElementById('new-nom').value.trim()
+            const desc = document.getElementById('new-desc').value.trim()
+            const prix = parseFloat(document.getElementById('new-prix').value)
+            
+            if (!nom || !desc || isNaN(prix)) {
+                alert("❌ Remplis tous les champs correctement !")
+                return
+            }
+            
+            const newPizza = {
+                id: Date.now(),
+                nom: nom,
+                description: desc,
+                prix: prix
+            }
+            
+            pizzas.unshift(newPizza)
+            savePizzas()
+            renderAdminPizzas()
+            renderMenu()
+            
+            // Reset form
+            document.getElementById('new-nom').value = ''
+            document.getElementById('new-desc').value = ''
+            document.getElementById('new-prix').value = ''
+            
+            alert(`✅ ${nom} ajoutée au menu !`)
+        }
+        
+        // ==================== SUPPRIMER PIZZA ====================
+        function deletePizza(id) {
+            if (!confirm("Supprimer cette pizza du menu ?")) return
+            pizzas = pizzas.filter(p => p.id !== id)
+            savePizzas()
+            renderAdminPizzas()
+            renderMenu()
+        }
+        
+        // ==================== MODIFIER PIZZA ====================
+        function editPizza(id) {
+            const pizza = pizzas.find(p => p.id === id)
+            if (!pizza) return
+            
+            const newNom = prompt("Nouveau nom :", pizza.nom)
+            if (newNom === null) return
+            
+            const newDesc = prompt("Nouvelle description :", pizza.description)
+            if (newDesc === null) return
+            
+            const newPrix = parseFloat(prompt("Nouveau prix (€):", pizza.prix))
+            if (isNaN(newPrix)) return
+            
+            pizza.nom = newNom
+            pizza.description = newDesc
+            pizza.prix = newPrix
+            
+            savePizzas()
+            renderAdminPizzas()
+            renderMenu()
+        }
+        
+        // ==================== SUPPRIMER RÉSERVATION ====================
+        function deleteReservation(index) {
+            if (!confirm("Supprimer cette réservation ?")) return
+            reservations.splice(index, 1)
+            saveReservations()
+            renderAdminReservations()
+        }
+        
+        // ==================== GESTION RÉSERVATION ====================
+        function setPersons(n) {
+            document.getElementById('nbPersonnes').value = n
+            document.querySelectorAll('.persons-btn').forEach(btn => {
+                if (parseInt(btn.textContent) === n || (n >= 8 && btn.textContent.includes('+'))) {
+                    btn.classList.add('border-[#e6392b]', 'bg-[#e6392b]', 'text-white')
+                } else {
+                    btn.classList.remove('border-[#e6392b]', 'bg-[#e6392b]', 'text-white')
+                }
+            })
+        }
+        
+        function handleReservationSubmit(e) {
+            e.preventDefault()
+            
+            const reservation = {
+                id: Date.now(),
+                nom: document.getElementById('nom').value,
+                tel: document.getElementById('tel').value,
+                date: document.getElementById('date').value,
+                heure: document.getElementById('heure').value,
+                nbPersonnes: document.getElementById('nbPersonnes').value,
+                timestamp: new Date().toISOString()
+            }
+            
+            reservations.unshift(reservation)
+            saveReservations()
+            
+            alert(`🎉 Réservation confirmée pour ${reservation.nom} !\nNous vous contacterons très vite par téléphone.`)
+            
+            // Reset form
+            document.getElementById('reservation-form').reset()
+            document.getElementById('nbPersonnes').value = "4"
+            
+            // Retour à l'accueil
+            showSection('home')
+            
+            // Si admin connecté, on met à jour sa liste
+            if (isAdminLoggedIn) renderAdminReservations()
+        }
+        
+        // ==================== PANEL ADMIN LOGIN ====================
+        function handleAdminClick() {
+            if (isAdminLoggedIn) {
+                showSection('admin')
+            } else {
+                document.getElementById('password-modal').classList.remove('hidden')
+                document.getElementById('admin-password').focus()
+            }
+        }
+        
+        function hidePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden')
+            document.getElementById('admin-password').value = ''
+        }
+        
+        function checkPassword() {
+            const input = document.getElementById('admin-password').value
+            if (input === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true
+                hidePasswordModal()
+                document.getElementById('admin-text').innerHTML = `👑 Admin`
+                document.getElementById('logout-btn').classList.remove('hidden')
+                document.getElementById('logout-btn').classList.add('flex')
+                showSection('admin')
+                renderAdminPizzas()
+                renderAdminReservations()
+            } else {
+                alert("❌ Mot de passe incorrect !\nIndice : pizza123")
+                document.getElementById('admin-password').value = ''
+            }
+        }
+        
+        function logout() {
+            if (confirm("Se déconnecter du panel admin ?")) {
+                isAdminLoggedIn = false
+                document.getElementById('admin-text').innerHTML = `<i class="fas fa-lock"></i> Panel Admin`
+                document.getElementById('logout-btn').classList.add('hidden')
+                document.getElementById('logout-btn').classList.remove('flex')
+                showSection('home')
+            }
+        }
+        
+        // ==================== NAVIGATION SECTIONS ====================
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active')
+            })
+            const target = document.getElementById(id)
+            if (target) target.classList.add('active')
+            
+            // Si on va sur admin sans être connecté → on redirige vers login
+            if (id === 'admin' && !isAdminLoggedIn) {
+                handleAdminClick()
+            }
+        }
+        
+        // ==================== INIT APP ====================
+        function init() {
+            // Tailwind
+            return
+            
+            // Chargement des données
+            loadData()
+            
+            // Render public
+            renderMenu()
+            
+            // Écouteur formulaire réservation
+            document.getElementById('reservation-form').addEventListener('submit', handleReservationSubmit)
+            
+            // Date minimum = aujourd'hui
+            const today = new Date().toISOString().split('T')[0]
+            document.getElementById('date').setAttribute('min', today)
+            
+            console.log('%c✅ Bella Pizza GitHub Pages prête !', 'color:#e6392b; font-size:18px; font-weight:bold')
+            console.log('Mot de passe admin : pizza123')
+        }
+        
+        // Lancement
+        window.onload = init
     </script>
 </body>
 </html>
